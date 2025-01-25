@@ -12,7 +12,7 @@ def obfuscate(data: bytes) -> str:
 def deobfuscate(data: str) -> bytes:
     return base64.urlsafe_b64decode(data[::-1])
 
-def generate_aes_key(key_length=32):
+def generate_aes_key(key_length=32):  # 32 bytes = 256 bits
     return os.urandom(key_length)
 
 def aes_encrypt(data: bytes, key: bytes):
@@ -95,7 +95,7 @@ def hash_key_file(file_path):
 def initialize_key_file(file_path="encryption.key"):
     if not os.path.exists(file_path):
         print("Key file not found. Generating a new one...")
-        aes_key = generate_aes_key(32)
+        aes_key = generate_aes_key(32)  # 256-bit AES key
         private_key, public_key = generate_rsa_keypair()
         encrypted_aes_key = rsa_encrypt(aes_key, public_key)
         save_key_file(file_path, private_key, public_key, encrypted_aes_key)
