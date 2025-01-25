@@ -6,14 +6,23 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
+def clear_screen():
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+
 def obfuscate(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).decode('utf-8')[::-1]
+
 
 def deobfuscate(data: str) -> bytes:
     return base64.urlsafe_b64decode(data[::-1])
 
-def generate_aes_key(key_length=32):  # 32 bytes = 256 bits
+
+def generate_aes_key(key_length=32):
     return os.urandom(key_length)
+
 
 def aes_encrypt(data: bytes, key: bytes):
     iv = os.urandom(16)
@@ -22,11 +31,13 @@ def aes_encrypt(data: bytes, key: bytes):
     ciphertext = encryptor.update(data) + encryptor.finalize()
     return iv + ciphertext
 
+
 def aes_decrypt(ciphertext: bytes, key: bytes):
     iv = ciphertext[:16]
     cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
     decryptor = cipher.decryptor()
     return decryptor.update(ciphertext[16:]) + decryptor.finalize()
+
 
 def generate_rsa_keypair(key_size=4096):
     private_key = rsa.generate_private_key(
@@ -36,6 +47,7 @@ def generate_rsa_keypair(key_size=4096):
     )
     public_key = private_key.public_key()
     return private_key, public_key
+
 
 def rsa_encrypt(data: bytes, public_key):
     return public_key.encrypt(
@@ -47,6 +59,7 @@ def rsa_encrypt(data: bytes, public_key):
         )
     )
 
+
 def rsa_decrypt(ciphertext: bytes, private_key):
     return private_key.decrypt(
         ciphertext,
@@ -57,95 +70,175 @@ def rsa_decrypt(ciphertext: bytes, private_key):
         )
     )
 
-def save_key_file(file_path, private_key, public_key, encrypted_aes_key):
+
+def save_key_file(key_path, private_key, public_key, encrypted_aes_key, password=None):
+    encryption_algorithm = (
+        serialization.BestAvailableEncryption(password.encode())
+        if password else
+        serialization.NoEncryption()
+    )
+
     private_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=encryption_algorithm
     )
     public_bytes = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
-    with open(file_path, 'w') as key_file:
+    with open(key_path, 'w') as key_file:
         key_file.write(obfuscate(private_bytes) + "\n")
         key_file.write(obfuscate(public_bytes) + "\n")
         key_file.write(obfuscate(encrypted_aes_key) + "\n")
 
-def load_key_file(file_path):
-    with open(file_path, 'r') as key_file:
+
+def load_key_file(key_path, password=None):
+    with open(key_path, 'r') as key_file:
         lines = key_file.readlines()
+        private_key_data = deobfuscate(lines[0].strip())
+        public_key_data = deobfuscate(lines[1].strip())
+        encrypted_aes_key = deobfuscate(lines[2].strip())
+
         private_key = serialization.load_pem_private_key(
-            deobfuscate(lines[0].strip()),
-            password=None,
+            private_key_data,
+            password=password.encode() if password else None,
             backend=default_backend()
         )
         public_key = serialization.load_pem_public_key(
-            deobfuscate(lines[1].strip()),
+            public_key_data,
             backend=default_backend()
         )
-        encrypted_aes_key = deobfuscate(lines[2].strip())
     return private_key, public_key, encrypted_aes_key
 
-def hash_key_file(file_path):
-    with open(file_path, 'rb') as key_file:
+
+def hash_key_file(key_path):
+    with open(key_path, 'rb') as key_file:
         file_data = key_file.read()
     return hashlib.sha256(file_data).digest()
 
-def initialize_key_file(file_path="encryption.key"):
-    if not os.path.exists(file_path):
-        print("Key file not found. Generating a new one...")
-        aes_key = generate_aes_key(32)  # 256-bit AES key
+
+def initialize_key_file(key_path, password):
+    if not os.path.exists(key_path):
+        print("\n🔐 Key file not found. Generating a new one...")
+        aes_key = generate_aes_key(32)
         private_key, public_key = generate_rsa_keypair()
         encrypted_aes_key = rsa_encrypt(aes_key, public_key)
-        save_key_file(file_path, private_key, public_key, encrypted_aes_key)
-        print(f"New key file generated and saved at {file_path}.")
+        save_key_file(key_path, private_key, public_key, encrypted_aes_key, password)
+        print(f"✅ New key file generated and saved at {key_path}.")
     else:
-        print(f"Key file found at {file_path}. Using existing keys.")
+        print(f"✅ Key file found at {key_path}. Using existing keys.")
 
-def encrypt_data(file_path="encryption.key"):
-    private_key, public_key, encrypted_aes_key = load_key_file(file_path)
-    aes_key = rsa_decrypt(encrypted_aes_key, private_key)
 
-    key_file_hash = hash_key_file(file_path)
-    enhanced_aes_key = hashlib.sha256(aes_key + key_file_hash).digest()
+def encrypt_data(key_path, password, data, print_data=True):
+    
+    try:
+        private_key, public_key, encrypted_aes_key = load_key_file(key_path, password if password else None)
+        aes_key = rsa_decrypt(encrypted_aes_key, private_key)
+        key_file_hash = hash_key_file(key_path)
+        enhanced_aes_key = hashlib.sha256(aes_key + key_file_hash).digest()
+        encrypted_data = aes_encrypt(data, enhanced_aes_key)
+        if print_data is True:
+            print("🔒 Encrypted data:", base64.urlsafe_b64encode(encrypted_data).decode())
+        else:
+            return base64.urlsafe_b64encode(encrypted_data).decode()
+    except Exception as e:
+        print(f"❌ Error: {e}")
 
-    data = input("Enter the data to encrypt: ").encode()
-    encrypted_data = aes_encrypt(data, enhanced_aes_key)
-    print("Encrypted data:", base64.urlsafe_b64encode(encrypted_data).decode())
 
-def decrypt_data(file_path="encryption.key"):
-    private_key, public_key, encrypted_aes_key = load_key_file(file_path)
-    aes_key = rsa_decrypt(encrypted_aes_key, private_key)
+def decrypt_data(key_path, password, encrypted_data, print_data=True):
+    
+    try:
+        private_key, public_key, encrypted_aes_key = load_key_file(key_path, password if password else None)
+        aes_key = rsa_decrypt(encrypted_aes_key, private_key)
+        key_file_hash = hash_key_file(key_path)
+        enhanced_aes_key = hashlib.sha256(aes_key + key_file_hash).digest()
+        encrypted_data_bytes = base64.urlsafe_b64decode(encrypted_data)
+        decrypted_data = aes_decrypt(encrypted_data_bytes, enhanced_aes_key)
+        if print_data is True:
+            print("🔓 Decrypted data:", decrypted_data.decode())
+        else:
+            return decrypted_data.decode()
+    except Exception as e:
+        print(f"❌ Error: {e}")
 
-    key_file_hash = hash_key_file(file_path)
-    enhanced_aes_key = hashlib.sha256(aes_key + key_file_hash).digest()
+def encrypt_file(key_path, password, file_path):
+    try:
+        with open(file_path, 'rb') as data_file:
+            data = data_file.read()
+            encrypted_data = encrypt_data(key_path, password, data, print_data=False)
+            encrypted_file_path = file_path + '.enc'
+            with open(encrypted_file_path, 'wb') as encrypted_file:
+                if encrypted_data:
+                    encrypted_file.write(base64.urlsafe_b64decode(encrypted_data))
+                else:
+                    print("Error: No data was returned from encryption.")
+            print(f"Encrypted file saved as {encrypted_file_path}")
+    except Exception as e:
+        print(f"❌ Error encrypting the file: {e}")
 
-    encrypted_data = input("Enter the encrypted data to decrypt: ")
-    encrypted_data_bytes = base64.urlsafe_b64decode(encrypted_data)
-    decrypted_data = aes_decrypt(encrypted_data_bytes, enhanced_aes_key)
-    print("Decrypted data:", decrypted_data.decode())
+def decrypt_file(key_path, password, file_path):
+    try:
+        if file_path.endswith('.enc'):
+            with open(file_path, 'rb') as encrypted_data_file:
+                encrypted_data = encrypted_data_file.read()
+                decrypted_data = decrypt_data(key_path, password, base64.urlsafe_b64encode(encrypted_data).decode(), print_data=False)
+                decrypted_file_path = file_path[:-4]
+                with open(decrypted_file_path, 'wb') as decrypted_file:
+                    decrypted_file.write(decrypted_data.encode())
+                print(f"Decrypted file saved as {decrypted_file_path}")
+        else:
+            print("Invalid file format for decryption. Ensure the file is an encrypted .enc file.")
+    except Exception as e:
+        print(f"❌ Error decrypting the file: {e}")
+
+
 
 def main():
-    file_path = "encryption.key"
-    initialize_key_file(file_path)
-    
+    global key_path
+    global password
+    key_path = "encryption.key"
+    password = input("\nEnter the password to unlock your private key or to create a new one (leave blank if not set): ")
+    initialize_key_file(key_path, password)
+
     while True:
-        print("\nChoose an action:")
+        clear_screen()
+        print("================================")
+        print("\n=== Secure Encryption System ===")
+        print("================================")
+        print()
+        print("\n=== Menu ===")
+        print("\n=== Text Encryption ===")
         print("1. Encrypt Data")
         print("2. Decrypt Data")
-        print("3. Exit")
-        choice = input("Enter your choice (1/2/3): ")
-
+        print("\n=== File Encryption ===")
+        print("3. Encrypt File")
+        print("4. Decrypt File")
+        print("5. Exit")
+    
+        choice = input("Choose an option (1/2/3/4/5): ").strip()
         if choice == "1":
-            encrypt_data(file_path)
+            data = input("Enter the data to encrypt: ").encode()
+            encrypt_data(key_path, password, data)
+            input("\nPress Enter to return to the menu...")
         elif choice == "2":
-            decrypt_data(file_path)
+            encrypted_data = input("Enter the encrypted data to decrypt: ")
+            decrypt_data(key_path, password, encrypted_data)
+            input("\nPress Enter to return to the menu...")
         elif choice == "3":
-            print("Exiting program.")
+            file_path = input("Enter the file path to encrypt: ")
+            encrypt_file(key_path, password, file_path)
+            input("\nPress Enter to return to the menu...")
+        elif choice == "4":
+            file_path = input("Enter the file path to decrypt: ")
+            decrypt_file(key_path, password, file_path)
+            input("\nPress Enter to return to the menu...")
+        elif choice == "5":
+            print("👋 Exiting. Goodbye!")
             break
         else:
-            print("Invalid choice. Please try again.")
+            print("❌ Invalid choice. Please try again.")
+            input("\nPress Enter to return to the menu...")
 
 if __name__ == "__main__":
     main()
