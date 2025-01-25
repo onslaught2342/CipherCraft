@@ -1,65 +1,142 @@
-**Encryption Algorithm**
-=======================
 
-A secure encryption program using RSA and AES algorithms to protect user data.
+---
 
-### Table of Contents
+# **Encryption Program**
 
-1. [Introduction](#introduction)
-2. [Features](#features)
-3. [Requirements](#requirements)
-4. [Usage](#usage)
-5. [Code Explanation](#code-explanation)
-6. [Security Measures](#security-measures)
-7. [Contributing](#contributing)
-8. [License](#license)
+A secure encryption tool that combines **RSA** and **AES** algorithms to protect sensitive data. This program enables encryption and decryption of files and data with enhanced key management and obfuscation.
 
-### Introduction
-This encryption program uses a combination of RSA and AES algorithms to provide secure encryption and decryption of user data. The program generates a key file that stores the RSA private and public keys, as well as an encrypted AES key.
+---
 
-### Features
+## **Table of Contents**
 
-* Generates a key file with RSA private and public keys, and an encrypted AES key
-* Encrypts and decrypts user data using AES algorithm
-* Uses HMAC to verify the integrity of the encrypted data
-* Uses a passphrase to protect the key file
+1. [Introduction](#introduction)  
+2. [Features](#features)  
+3. [Requirements](#requirements)  
+4. [Installation](#installation)  
+5. [Usage Guide](#usage-guide)  
+   - [Key File Initialization](#key-file-initialization)  
+   - [Encrypting Data](#encrypting-data)  
+   - [Decrypting Data](#decrypting-data)  
+   - [Encrypting Files](#encrypting-files)  
+   - [Decrypting Files](#decrypting-files)  
+6. [How It Works](#how-it-works)  
+7. [Security Measures](#security-measures)  
+8. [Contributing](#contributing)  
+9. [License](#license)  
 
-### Requirements
+---
 
-* Python 3.x
-* cryptography library (`pip install cryptography`)
+## **Introduction**
 
-### Usage
+This script securely handles encryption and decryption of data using **AES (Advanced Encryption Standard)** for symmetric encryption and **RSA (Rivest–Shamir–Adleman)** for asymmetric encryption. A key file is generated to manage the RSA key pair and AES encryption key, secured by an optional passphrase.
 
-1. Run the program and enter the key file path (default: `encryption.key`) and passphrase.
-2. Choose an action:
-	* Encrypt Data: Enter the data to encrypt, and the program will display the encrypted data.
-	* Decrypt Data: Enter the encrypted data to decrypt, and the program will display the decrypted data.
-	* Exit: Quit the program.
+---
 
-### Code Explanation
+## **Features**
 
-The program consists of several functions:
+- **AES Encryption**: Encrypts and decrypts sensitive data or files.  
+- **RSA Key Management**: Uses RSA public/private key pairs for secure key handling.  
+- **Obfuscation**: Adds an extra layer of protection to the key file.  
+- **File Encryption**: Encrypts and decrypts files directly.  
+- **Integrity Protection**: Enhances AES key security with hash-based mechanisms.  
 
-* `generate_aes_key`: Generates a random AES key.
-* `generate_rsa_keypair`: Generates an RSA key pair.
-* `save_key_file`: Saves the key file with the RSA private and public keys, and the encrypted AES key.
-* `load_key_file`: Loads the key file and returns the RSA private and public keys, and the encrypted AES key.
-* `encrypt_data`: Encrypts user data using the AES algorithm.
-* `decrypt_data`: Decrypts user data using the AES algorithm.
-* `main`: The main program loop that handles user input and actions.
+---
 
-### Security Measures
+## **Requirements**
 
-* The program uses a secure passphrase to protect the key file.
-* The AES key is encrypted using the RSA public key.
-* The HMAC algorithm is used to verify the integrity of the encrypted data.
-* The program uses a secure random number generator to generate the AES key.
+- **Python 3.x**  
+- **cryptography library**: Install via `pip install cryptography`.  
 
-### Contributing
+---
 
-Contributions are welcome! Please submit a pull request with your changes.
+## **Installation**
 
-### License
+1. Clone the repository or copy the script file to your project directory.  
+2. Install the required Python dependencies:
+   ```bash
+   pip install cryptography
+   ```
 
-This program is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). See LICENSE for details.
+---
+
+## **Usage Guide**
+
+### **Key File Initialization**
+
+Before encryption or decryption, initialize a key file:  
+1. Specify the key file path (e.g., `keyfile.key`).  
+2. Set an optional passphrase to secure the key file.  
+
+```python
+initialize_key_file("keyfile.key", "your-secure-password")
+```
+
+### **Encrypting Data**
+
+Use `encrypt_data` to encrypt strings or binary data:  
+
+```python
+encrypt_data("keyfile.key", "your-password", b"Your sensitive data")
+```
+
+### **Decrypting Data**
+
+Retrieve and decrypt encrypted strings or binary data:  
+
+```python
+decrypt_data("keyfile.key", "your-password", "encrypted_data_string")
+```
+
+### **Encrypting Files**
+
+Encrypt any file with the following function:  
+
+```python
+encrypt_file("keyfile.key", "your-password", "example.txt")
+```
+
+### **Decrypting Files**
+
+Decrypt `.enc` files generated by the encryption process:  
+
+```python
+decrypt_file("keyfile.key", "your-password", "example.txt.enc")
+```
+
+---
+
+## **How It Works**
+
+### Key Management
+1. RSA public and private keys are generated and saved in the key file.  
+2. AES keys are randomly generated and encrypted using the RSA public key.  
+
+### Encryption Process
+- **AES** encrypts the data or file contents.  
+- **RSA** secures the AES key for future decryption.  
+
+### Obfuscation
+- Key data is obfuscated using **Base64** encoding and string manipulation for added security.  
+
+---
+
+## **Security Measures**
+
+- RSA encryption with **4096-bit keys** provides robust security.  
+- AES encryption uses **256-bit keys** for data protection.  
+- Key file is secured with a passphrase and hashed for integrity.  
+- Data obfuscation adds an extra layer of complexity.  
+
+---
+
+## **Contributing**
+
+Contributions are welcome! Feel free to open issues or submit pull requests with suggestions and improvements.
+
+---
+
+## **License**
+
+This project is licensed under the **reative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**. See `LICENSE` for details.
+
+---
