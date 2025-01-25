@@ -191,3 +191,4 @@ def decrypt_file(key_path, password, file_path):
             print("Invalid file format for decryption. Ensure the file is an encrypted .enc file.")
     except Exception as e:
         print(f"❌ Error decrypting the file: {e}")
+
