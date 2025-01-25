@@ -59,3 +59,7 @@ The program consists of several functions:
 ### Contributing
 
 Contributions are welcome! Please submit a pull request with your changes.
+
+### License
+
+This program is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). See LICENSE for details.
