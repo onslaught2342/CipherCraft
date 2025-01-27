@@ -1,4 +1,4 @@
-from algo import *
+from algo import initialize_key_file, clear_screen, encrypt_data, decrypt_data, encrypt_file, decrypt_file
 def main():
     global key_path
     global password
