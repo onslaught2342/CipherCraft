@@ -30,6 +30,7 @@ jobs:
           echo "[flake8]" > .flake8
           echo "max-line-length = 120" >> .flake8
           flake8 .
+          rm -f .flake8
 
       - name: Auto-fix imports with isort
         run: isort .
