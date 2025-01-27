@@ -1,5 +1,5 @@
 ---
-  name: Lint Code Base
+  name: Lint and Auto-Fix Code Base
   
   on:
     push:
@@ -14,21 +14,50 @@
         contents: write
         statuses: write
       steps:
+        # Step 1: Checkout the code
         - name: Checkout code
           uses: actions/checkout@v4
           with:
-            # Full git history is needed to get a proper list of changed files within `super-linter`
             fetch-depth: 0
   
+        # Step 2: Set up Python for auto-fix tools
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.x
+  
+        # Step 3: Install linters and auto-fix tools
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip
+            pip install black isort flake8
+  
+        # Step 4: Run auto-fix for Python files using Black and isort
+        - name: Auto-fix Python files
+          run: |
+            black .
+            isort .
+  
+        # Step 5: Run Super-Linter for all validations (non-auto-fixable issues will still be reported)
         - name: Lint Code Base
           uses: github/super-linter@v4
           env:
-            VALIDATE_ALL_CODEBASE: true # Lint all files in the codebase
-            VALIDATE_YAML: true         # Enable YAML validation
-            VALIDATE_PYTHON_BLACK: true # Enable Python Black validation
-            VALIDATE_PYTHON_FLAKE8: true # Enable Python Flake8 validation
-            VALIDATE_PYTHON_ISORT: true # Enable Python isort validation
-            DEFAULT_BRANCH: "main"      # Set the default branch
-            LOG_LEVEL: DEBUG            # Enable detailed logs for troubleshooting
+            VALIDATE_ALL_CODEBASE: true
+            VALIDATE_YAML: true
+            VALIDATE_PYTHON_BLACK: true
+            VALIDATE_PYTHON_FLAKE8: true
+            VALIDATE_PYTHON_ISORT: true
+            DEFAULT_BRANCH: "main"
+            LOG_LEVEL: DEBUG
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+        # Step 6: Push changes back to the repository if auto-fixes are applied
+        - name: Push changes
+          if: ${{ github.ref == 'refs/heads/main' }}
+          run: |
+            git config user.name "GitHub Actions Bot"
+            git config user.email "actions@github.com"
+            git add .
+            git commit -m "Auto-fix: Code formatting and sorting"
+            git push origin main
   
