@@ -1,54 +1,44 @@
----
-  name: Python Lint and Auto-Fix
-  
-  on:
-    push:
-      branches: ["main"]
-    pull_request:
-      branches: ["main"]
-  
-  jobs:
-    python-lint:
-      runs-on: ubuntu-latest
-      steps:
-        # Step 1: Checkout the code
-        - name: Checkout code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
-  
-        # Step 2: Set up Python
-        - name: Set up Python
-          uses: actions/setup-python@v4
-          with:
-            python-version: 3.x
-  
-        # Step 3: Install linters and auto-fix tools
-        - name: Install Python linting tools
-          run: |
-            python -m pip install --upgrade pip
-            pip install black isort flake8
-  
-        # Step 4: Run Black for auto-fix
-        - name: Auto-fix Python files with Black
-          run: black .
-  
-        # Step 5: Run isort for import sorting
-        - name: Auto-fix imports with isort
-          run: isort .
-  
-        # Step 6: Run Flake8 for static analysis (no auto-fix)
-        - name: Lint Python files with Flake8
-          run: flake8 .
-  
-        # Step 7: Push changes if auto-fixes were applied
-        - name: Push changes
-          if: ${{ github.ref == 'refs/heads/main' }}
-          run: |
-            git config user.name "GitHub Actions Bot"
-            git config user.email "actions@github.com"
-            git add .
-            git commit -m "Auto-fix: Code formatting and imports sorted"
-            git push origin main
+name: Python Lint and Format
 
-  
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install Tools
+        run: |
+          pip install black flake8 isort
+
+      - name: Format Code with Black
+        run: black .
+
+      - name: Lint Code with Flake8
+        run: |
+          echo "[flake8]" > .flake8
+          echo "max-line-length = 120" >> .flake8
+          flake8 .
+
+      - name: Auto-fix imports with isort
+        run: isort .
+
+      - name: Push changes
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Auto-fix: Code formatting and imports sorted"
+          git push origin main
