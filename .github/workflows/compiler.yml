@@ -19,7 +19,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iwr https://community.chocolatey.org/install.ps1 -UseBasicParsing | iex
         choco install zip
 
     - name: Build EXE with PyInstaller
@@ -35,12 +34,12 @@ jobs:
         zip -r SecureEncryptionSystem.zip SecureEncryptionSystem.exe
         echo "archive=SecureEncryptionSystem.zip" >> $GITHUB_OUTPUT
 
-    - name: Publish Executable
-      shell: bash
-      env:
-        archive: ${{ steps.package.outputs.archive }}
-      run: |
-        curl -T "$archive" "https://transfer.sh/$(basename $archive)"
+   # - name: Publish Executable
+  #    shell: bash
+ #     env:
+#        archive: ${{ steps.package.outputs.archive }}
+#      run: |
+##        curl -T "$archive" "https://transfer.sh/$(basename $archive)"
 
     - name: Push changes
       if: ${{ github.ref == 'refs/heads/main' }}
