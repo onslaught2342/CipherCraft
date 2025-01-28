@@ -42,7 +42,14 @@ jobs:
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
+          
+          # Check if there are any changes to commit
           git add .
-          git commit -m "Auto-fix: Code formatting and imports sorted"
-          git push origin main
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Auto-fix: Code formatting and imports sorted"
+            git push origin main
+          fi
+      
 

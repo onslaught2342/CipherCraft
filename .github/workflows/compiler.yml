@@ -30,14 +30,14 @@ jobs:
       shell: bash
       run: |
         set -euxo pipefail
-        mkdir -p dist
+        mkdir -p dist/windows # Create the desired directory
         mv dist/SecureEncryptionSystem.exe .
         zip -r SecureEncryptionSystem.zip SecureEncryptionSystem.exe
-        echo "archive=SecureEncryptionSystem.zip" >> $GITHUB_OUTPUT
-        mv SecureEncryptionSystem.exe dist/dist/SecureEncryptionSystem.exe
-        mv SecureEncryptionSystem.zip dist/dist/SecureEncryptionSystem.zip
-        mv SecureEncryptionSystem.spec dist/dist/SecureEncryptionSystem.spec
-
+        echo "archive=SecureEncryptionSystem.zip" >> $GITHUB_OUTPUT          
+        mv SecureEncryptionSystem.exe dist/windows/SecureEncryptionSystem.exe
+        mv SecureEncryptionSystem.zip dist/windows/SecureEncryptionSystem.zip
+        mv SecureEncryptionSystem.spec dist/windows/SecureEncryptionSystem.spec
+           
 
    # - name: Publish Executable
   #    shell: bash
