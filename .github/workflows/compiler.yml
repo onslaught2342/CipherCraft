@@ -14,17 +14,17 @@ jobs:
     - name: Set Up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.13
+        python-version: '3.13'
 
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
         pip install -r requirements.txt
-    
-    - name: Remove previous executables
+
+    - name: Remove Previous Executables
       run: |
-        rm -rf dist/*
+        if (Test-Path -Path dist) { Remove-Item -Recurse -Force dist }
 
     - name: Build EXE with PyInstaller
       run: |
@@ -32,14 +32,11 @@ jobs:
 
     - name: Package Windows Executable
       run: |
-        rm -r /dist/windows
         echo "Packaging Windows executable..."
-        if (!(Test-Path -Path "dist/windows")) { New-Item -ItemType Directory -Path "dist/windows" }
-        mv dist/SecureEncryptionSystem.exe dist/windows/SecureEncryptionSystem.exe
-        cd dist/windows
-        zip -r SecureEncryptionSystem.zip SecureEncryptionSystem.exe
-        echo "archive=dist/windows/SecureEncryptionSystem.zip" >> $GITHUB_OUTPUT
-        echo "Windows packaging completed."
+        New-Item -ItemType Directory -Force -Path dist/windows
+        Move-Item -Force dist/SecureEncryptionSystem.exe dist/windows/SecureEncryptionSystem.exe
+        Compress-Archive -Path dist/windows/* -DestinationPath dist/windows/SecureEncryptionSystem.zip
+        echo "archive=dist/windows/SecureEncryptionSystem.zip" >> $GITHUB_ENV
 
   build-linux:
     name: Build EXE for Linux
@@ -51,13 +48,17 @@ jobs:
     - name: Set Up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.13
+        python-version: '3.13'
 
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
         pip install -r requirements.txt
+
+    - name: Remove Previous Executables
+      run: |
+        rm -rf dist/*
 
     - name: Build Executable for Linux
       run: |
@@ -70,12 +71,11 @@ jobs:
         mv dist/SecureEncryptionSystem dist/linux/SecureEncryptionSystem
         cd dist/linux
         zip -r SecureEncryptionSystem.zip SecureEncryptionSystem
-        echo "archive=dist/linux/SecureEncryptionSystem.zip" >> $GITHUB_OUTPUT
-        echo "Linux packaging completed."
+        echo "archive=dist/linux/SecureEncryptionSystem.zip" >> $GITHUB_ENV
 
   push-changes:
     name: Push Build Artifacts
-    needs: [build-windows, build-linux]  # Ensure this runs after both builds
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
