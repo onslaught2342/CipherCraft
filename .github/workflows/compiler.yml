@@ -49,6 +49,7 @@ jobs:
   build-linux:
     name: Build EXE for Linux
     runs-on: ubuntu-latest
+    needs: build-windows
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
