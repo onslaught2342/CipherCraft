@@ -37,6 +37,23 @@ jobs:
         Move-Item -Force dist/SecureEncryptionSystem.exe dist/windows/SecureEncryptionSystem.exe
         Compress-Archive -Path dist/windows/* -DestinationPath dist/windows/SecureEncryptionSystem.zip
         echo "archive=dist/windows/SecureEncryptionSystem.zip" >> $GITHUB_ENV
+        
+    - name: Push changes
+      if: ${{ github.ref == 'refs/heads/main' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "actions@github.com"        
+        git add .
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Compiled Windows executable"
+          git push origin main
+        fi
+      
+      
 
   build-linux:
     name: Build EXE for Linux
@@ -72,25 +89,19 @@ jobs:
         cd dist/linux
         zip -r SecureEncryptionSystem.zip SecureEncryptionSystem
         echo "archive=dist/linux/SecureEncryptionSystem.zip" >> $GITHUB_ENV
-
-  push-changes:
-    name: Push Build Artifacts
-    needs: [build-windows, build-linux]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Push Build Changes
+    
+    - name: Push changes
       if: ${{ github.ref == 'refs/heads/main' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git init .
-        git remote add origin https://github.com/onslaught-2342/CipherCraft.git
-        git pull origin main || echo "No existing 'main' branch"
-        git checkout -b main || git checkout main
-        echo "Committing build artifacts..."
         git config user.name "GitHub Actions Bot"
-        git config user.email "actions@github.com"
-        git add dist
-        git commit -m "Added build artifacts for Windows and Linux from GitHub Actions"
-        git push --force origin main
-        echo "Build artifacts pushed."
+        git config user.email "actions@github.com"        
+        git add .
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Compiled Windows executable"
+          git push origin main
+        fi
+
