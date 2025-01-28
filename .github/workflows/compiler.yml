@@ -27,7 +27,7 @@ jobs:
 
       - name: Clean Previous Builds
         run: |
-          Remove-Item -Recurse -Force dist/windows/*
+          if (Test-Path "dist/windows") { Remove-Item -Recurse -Force "dist/windows/*" }
 
       - name: Build Windows Executable
         run: |
