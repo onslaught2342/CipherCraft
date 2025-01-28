@@ -78,9 +78,6 @@ jobs:
     needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-
     - name: Push Build Changes
       if: ${{ github.ref == 'refs/heads/main' }}
       env:
