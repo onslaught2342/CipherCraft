@@ -36,7 +36,6 @@ jobs:
         echo "archive=dist/windows/SecureEncryptionSystem.zip" >> $GITHUB_OUTPUT
         echo "Windows packaging completed."
 
-
   build-linux:
     name: Build EXE for Linux
     runs-on: ubuntu-latest
