@@ -1,3 +1,5 @@
 encryption.key
 logo
 build
+.env
+.venv
