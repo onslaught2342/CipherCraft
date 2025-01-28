@@ -19,6 +19,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
+        pip install -r requirements.txt
         choco install zip
 
     - name: Build EXE with PyInstaller
@@ -33,6 +34,10 @@ jobs:
         mv dist/SecureEncryptionSystem.exe .
         zip -r SecureEncryptionSystem.zip SecureEncryptionSystem.exe
         echo "archive=SecureEncryptionSystem.zip" >> $GITHUB_OUTPUT
+        mv SecureEncryptionSystem.exe dist/dist/SecureEncryptionSystem.exe
+        mv SecureEncryptionSystem.zip dist/dist/SecureEncryptionSystem.zip
+        mv SecureEncryptionSystem.spec dist/dist/SecureEncryptionSystem.spec
+
 
    # - name: Publish Executable
   #    shell: bash
