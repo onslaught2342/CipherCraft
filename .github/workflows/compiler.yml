@@ -83,10 +83,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        git init .
+        git remote add origin https://github.com/onslaught-2342/CipherCraft.git
+        git pull
         echo "Committing build artifacts..."
         git config user.name "GitHub Actions Bot"
         git config user.email "actions@github.com"
         git add dist
         git commit -m "Added build artifacts for Windows and Linux from GitHub Actions"
-        git push origin main
+        git push --force
         echo "Build artifacts pushed."
