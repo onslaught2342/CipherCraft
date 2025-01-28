@@ -85,11 +85,12 @@ jobs:
       run: |
         git init .
         git remote add origin https://github.com/onslaught-2342/CipherCraft.git
-        git pull
+        git pull origin main || echo "No existing 'main' branch"
+        git checkout -b main || git checkout main
         echo "Committing build artifacts..."
         git config user.name "GitHub Actions Bot"
         git config user.email "actions@github.com"
         git add dist
         git commit -m "Added build artifacts for Windows and Linux from GitHub Actions"
-        git push --force
+        git push --force origin main
         echo "Build artifacts pushed."
