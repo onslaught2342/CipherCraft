@@ -1,9 +1,11 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 try:
     long_description = open("README.md", "r", encoding="utf-8").read()
 except FileNotFoundError:
-    long_description = "A Python library for secure AES and RSA encryption with key management."
+    long_description = (
+        "A Python library for secure AES and RSA encryption with key management."
+    )
 
 setup(
     name="cipher_craft",
