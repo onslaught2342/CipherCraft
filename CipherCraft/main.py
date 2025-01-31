@@ -1,5 +1,11 @@
-from algo import (clear_screen, decrypt_data, decrypt_file, encrypt_data,
-                  encrypt_file, initialize_key_file)
+from algo import (
+    clear_screen,
+    decrypt_data,
+    decrypt_file,
+    encrypt_data,
+    encrypt_file,
+    initialize_key_file,
+)
 
 
 def main():
