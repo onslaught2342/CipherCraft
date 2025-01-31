@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import os
-
+import re
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -14,14 +14,14 @@ def clear_screen():
     else:
         os.system("clear")
 
+def sanitize_path(path):
+    return re.sub(r'[^a-zA-Z0-9_.\-/]', '', path)
 
 def obfuscate(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).decode("utf-8")[::-1]
 
-
 def deobfuscate(data: str) -> bytes:
     return base64.urlsafe_b64decode(data[::-1])
-
 
 def generate_aes_key(key_length=32):
     return os.urandom(key_length)
@@ -29,7 +29,7 @@ def generate_aes_key(key_length=32):
 
 def aes_encrypt(data: bytes, key: bytes):
     iv = os.urandom(16)
-    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+    cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
     encryptor = cipher.encryptor()
     ciphertext = encryptor.update(data) + encryptor.finalize()
     return iv + ciphertext
@@ -37,7 +37,7 @@ def aes_encrypt(data: bytes, key: bytes):
 
 def aes_decrypt(ciphertext: bytes, key: bytes):
     iv = ciphertext[:16]
-    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+    cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
     decryptor = cipher.decryptor()
     return decryptor.update(ciphertext[16:]) + decryptor.finalize()
 
@@ -73,6 +73,7 @@ def rsa_decrypt(ciphertext: bytes, private_key):
 
 
 def save_key_file(key_path, private_key, public_key, encrypted_aes_key, password=None):
+    key_path = sanitize_path(key_path)
     encryption_algorithm = (
         serialization.BestAvailableEncryption(password.encode())
         if password
@@ -95,6 +96,7 @@ def save_key_file(key_path, private_key, public_key, encrypted_aes_key, password
 
 
 def load_key_file(key_path, password=None):
+    key_path = sanitize_path(key_path)
     with open(key_path, "r") as key_file:
         lines = key_file.readlines()
         private_key_data = deobfuscate(lines[0].strip())
@@ -113,12 +115,14 @@ def load_key_file(key_path, password=None):
 
 
 def hash_key_file(key_path):
+    key_path = sanitize_path(key_path)
     with open(key_path, "rb") as key_file:
         file_data = key_file.read()
     return hashlib.sha256(file_data).digest()
 
 
 def initialize_key_file(key_path, password):
+    key_path = sanitize_path(key_path)
     if not os.path.exists(key_path):
         print("\n🔐 Key file not found. Generating a new one...")
         aes_key = generate_aes_key(32)
@@ -131,7 +135,7 @@ def initialize_key_file(key_path, password):
 
 
 def encrypt_data(key_path, password, data, print_data=True):
-
+    key_path = sanitize_path(key_path)
     try:
         private_key, public_key, encrypted_aes_key = load_key_file(
             key_path, password if password else None
@@ -151,7 +155,7 @@ def encrypt_data(key_path, password, data, print_data=True):
 
 
 def decrypt_data(key_path, password, encrypted_data, print_data=True):
-
+    key_path = sanitize_path(key_path)
     try:
         private_key, public_key, encrypted_aes_key = load_key_file(
             key_path, password if password else None
@@ -170,6 +174,8 @@ def decrypt_data(key_path, password, encrypted_data, print_data=True):
 
 
 def encrypt_file(key_path, password, file_path):
+    key_path = sanitize_path(key_path)
+    file_path = sanitize_path(file_path)
     try:
         with open(file_path, "rb") as data_file:
             data = data_file.read()
@@ -186,6 +192,8 @@ def encrypt_file(key_path, password, file_path):
 
 
 def decrypt_file(key_path, password, file_path):
+    key_path = sanitize_path(key_path)
+    file_path = sanitize_path(file_path)
     try:
         if file_path.endswith(".enc"):
             with open(file_path, "rb") as encrypted_data_file:
