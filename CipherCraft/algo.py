@@ -14,14 +14,18 @@ def clear_screen():
     else:
         os.system("clear")
 
+
 def sanitize_path(path):
-    return re.sub(r'[^a-zA-Z0-9_.\-/]', '', path)
+    return re.sub(r"[^a-zA-Z0-9_.\-/]", "", path)
+
 
 def obfuscate(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).decode("utf-8")[::-1]
 
+
 def deobfuscate(data: str) -> bytes:
     return base64.urlsafe_b64decode(data[::-1])
+
 
 def generate_aes_key(key_length=32):
     return os.urandom(key_length)
