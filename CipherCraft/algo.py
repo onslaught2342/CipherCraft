@@ -29,7 +29,7 @@ def generate_aes_key(key_length=32):
 
 def aes_encrypt(data: bytes, key: bytes):
     iv = os.urandom(16)
-    cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
     encryptor = cipher.encryptor()
     ciphertext = encryptor.update(data) + encryptor.finalize()
     return iv + ciphertext
@@ -37,7 +37,7 @@ def aes_encrypt(data: bytes, key: bytes):
 
 def aes_decrypt(ciphertext: bytes, key: bytes):
     iv = ciphertext[:16]
-    cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
     decryptor = cipher.decryptor()
     return decryptor.update(ciphertext[16:]) + decryptor.finalize()
 
