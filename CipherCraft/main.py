@@ -1,5 +1,11 @@
-from algo import (clear_screen, decrypt_data, decrypt_file, encrypt_data,
-                  encrypt_file, initialize_key_file)
+from algo import (
+    clear_screen,
+    decrypt_data,
+    decrypt_file,
+    encrypt_data,
+    encrypt_file,
+    initialize_key_file,
+)
 import sys
 
 
@@ -55,6 +61,7 @@ def main():
     except KeyboardInterrupt:
         print("\n❌ Program interrupted by user. Exiting gracefully.")
         sys.exit(0)  # Proper exit
+
 
 if __name__ == "__main__":
     main()
