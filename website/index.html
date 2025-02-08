@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption Program</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Encryption Program</h1>
+        <p>A secure encryption tool combining RSA and AES algorithms for protecting sensitive data and files.</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#requirements">Requirements</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#usage-guide">Usage Guide</a></li>
+            <li><a href="#security-measures">Security</a></li>
+            <li><a href="#contributing">Contributing</a></li>
+            <li><a href="#license">License</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>This program handles secure encryption and decryption of data using AES and RSA. Key management is simplified with obfuscated key files.</p>
+        </section>
+        <section id="features">
+            <h2>Features</h2>
+            <ul>
+                <li>AES 256-bit Encryption</li>
+                <li>RSA 4096-bit Key Management</li>
+                <li>Obfuscation for Key Security</li>
+                <li>File Encryption Support</li>
+                <li>Key File Hashing for Integrity</li>
+            </ul>
+        </section>
+        <section id="requirements">
+            <h2>Requirements</h2>
+            <p>Python 3.x and cryptography library (install via pip).</p>
+        </section>
+        <section id="installation">
+            <h2>Installation</h2>
+            <pre><code>pip install cryptography</code></pre>
+        </section>
+        <section id="usage-guide">
+            <h2>Usage Guide</h2>
+            <h3>Key File Initialization</h3>
+            <pre><code>initialize_key_file("keyfile.key", "your-secure-password")</code></pre>
+            <h3>Encrypting Data</h3>
+            <pre><code>encrypt_data("keyfile.key", "your-password", b"Your sensitive data")</code></pre>
+            <h3>Decrypting Data</h3>
+            <pre><code>decrypt_data("keyfile.key", "your-password", "encrypted_data_string")</code></pre>
+            <h3>Encrypting Files</h3>
+            <pre><code>encrypt_file("keyfile.key", "your-password", "example.txt")</code></pre>
+            <h3>Decrypting Files</h3>
+            <pre><code>decrypt_file("keyfile.key", "your-password", "example.txt.enc")</code></pre>
+        </section>
+        <section id="security-measures">
+            <h2>Security Measures</h2>
+            <ul>
+                <li>RSA 4096-bit Key Protection</li>
+                <li>AES 256-bit Encryption</li>
+                <li>Key Obfuscation</li>
+                <li>File Hashing</li>
+                <li>Error Handling</li>
+            </ul>
+        </section>
+        <section id="contributing">
+            <h2>Contributing</h2>
+            <p>Contributions are welcome! Submit an issue or pull request.</p>
+        </section>
+        <section id="license">
+            <h2>License</h2>
+            <p>Licensed under CC BY-NC 4.0.</p>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
