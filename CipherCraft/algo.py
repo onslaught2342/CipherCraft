@@ -1,8 +1,9 @@
 import base64
 import hashlib
 import os
-import re
 import platform
+import re
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -11,6 +12,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")
+
 
 def sanitize_path(path):
     if platform.system() == "Windows":
